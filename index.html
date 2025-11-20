@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B4P Shipments Globe</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+      background: #000;
+    }
+    #globeViz {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    #tooltip {
+      position: absolute;
+      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      pointer-events: none;
+      font-size: 13px;
+      transform: translate(-50%, -120%);
+      display: none;
+      white-space: nowrap;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .tooltip-city {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .tooltip-weight {
+      font-size: 11px;
+      opacity: 0.9;
+      font-variant-numeric: tabular-nums;
+    }
+    #header {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      color: white;
+      z-index: 10;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    #header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    #header p {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    .panel {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      color: white;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+    #legend {
+      top: 24px;
+      right: 24px;
+      width: 280px;
+    }
+    #stats {
+      top: 200px;
+      right: 24px;
+      width: 280px;
+    }
+    .panel h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .legend-label {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .legend-desc {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(33, 150, 243, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .stat-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: #2196F3;
+    }
+    .stat-label {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 20px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+  <div id="globeViz"></div>
+  <div id="tooltip">
+    <div class="tooltip-city"></div>
+    <div class="tooltip-weight"></div>
+  </div>
+
+  <div id="header">
+    <h1>B4P Shipments Globe</h1>
+    <p>Interactive visualization of global shipment routes from Los Angeles</p>
+  </div>
+
+  <div id="legend" class="panel">
+    <h2>Route Legend</h2>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #ff8c00;"></div>
+      <div>
+        <div class="legend-label">Local LA Shipments</div>
+        <div class="legend-desc">Glendale, Long Beach, Metro LA</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #00bfff;"></div>
+      <div>
+        <div class="legend-label">International Routes</div>
+        <div class="legend-desc">Global destinations</div>
+      </div>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: #FFD700;"></div>
+      <div>
+        <div class="legend-label">Destination Points</div>
+        <div class="legend-desc">Shipment endpoints</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="stats" class="panel">
+    <h2>Shipment Overview</h2>
+    <div class="stat-item">
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-label">Total Shipments</div>
+        <div class="stat-value" id="totalShipments">20</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-label">Total Weight</div>
+        <div class="stat-value" id="totalWeight">1,007,073 lbs</div>
+      </div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="stat-label">Destinations</div>
+        <div class="stat-value" id="totalDestinations">13</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three-globe@2.31.1/dist/three-globe.min.js"></script>
+  <script src="https://unpkg.com/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script>
+    const LA = { city: "Los Angeles", lat: 34.0522, lng: -118.2437 };
+
+    const shipments = [
+      { city: "Glendale", pounds: 976172.49, lat: 34.1425, lng: -118.2551 },
+      { city: "Armenia", pounds: 996, lat: 40.25, lng: 45.0 },
+      { city: "Ukraine", pounds: 5674, lat: 48.3794, lng: 31.1656 },
+      { city: "Glendale", pounds: 1503.59, lat: 34.1425, lng: -118.2551 },
+      { city: "Turkey", pounds: 5066.74, lat: 38.9637, lng: 35.2433 },
+      { city: "Los Angeles", pounds: 2440.97, lat: 34.0522, lng: -118.2437 },
+      { city: "Burma", pounds: 675, lat: 21.0, lng: 96.0 },
+      { city: "Los Angeles", pounds: 2333.74, lat: 34.0522, lng: -118.2437 },
+      { city: "Kiev", pounds: 250, lat: 50.4547, lng: 30.5238 },
+      { city: "Philippines", pounds: 388, lat: 13.0, lng: 122.0 },
+      { city: "Los Angeles", pounds: 69.92, lat: 34.0522, lng: -118.2437 },
+      { city: "Los Angeles", pounds: 70.62, lat: 34.0522, lng: -118.2437 },
+      { city: "Metro LA", pounds: 1007.73, lat: 34.0522, lng: -118.2437 },
+      { city: "Los Angeles", pounds: 2619.09, lat: 34.0522, lng: -118.2437 },
+      { city: "Los Angeles", pounds: 3053.73, lat: 34.0522, lng: -118.2437 },
+      { city: "Los Angeles", pounds: 56, lat: 34.0522, lng: -118.2437 },
+      { city: "Islamabad", pounds: 9125.59, lat: 33.6938, lng: 73.0652 },
+      { city: "Los Angeles", pounds: 256, lat: 34.0522, lng: -118.2437 },
+      { city: "Los Angeles", pounds: 769, lat: 34.0522, lng: -118.2437 },
+      { city: "Long Beach", pounds: 589, lat: 33.7670, lng: -118.1890 }
+    ];
+
+    const arcsData = shipments.map((s, i) => ({
+      id: i,
+      fromCity: LA.city,
+      fromLat: LA.lat,
+      fromLng: LA.lng,
+      toCity: s.city,
+      toLat: s.lat,
+      toLng: s.lng,
+      pounds: s.pounds
+    }));
+
+    // Calculate stats
+    const totalPounds = arcsData.reduce((sum, arc) => sum + arc.pounds, 0);
+    const uniqueDestinations = new Set(arcsData.map(arc => arc.toCity)).size;
+    document.getElementById('totalShipments').textContent = arcsData.length.toLocaleString();
+    document.getElementById('totalWeight').textContent = totalPounds.toLocaleString() + ' lbs';
+    document.getElementById('totalDestinations').textContent = uniqueDestinations.toLocaleString();
+
+    const container = document.getElementById('globeViz');
+    const tooltipEl = document.getElementById('tooltip');
+    const tooltipCity = tooltipEl.querySelector('.tooltip-city');
+    const tooltipWeight = tooltipEl.querySelector('.tooltip-weight');
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      2000
+    );
+    camera.position.set(0, 0, 400);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.1;
+    controls.minDistance = 200;
+    controls.maxDistance = 600;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+    scene.add(ambientLight);
+
+    const Globe = new ThreeGlobe()
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .arcsData(arcsData)
+      .arcStartLat(d => d.fromLat)
+      .arcStartLng(d => d.fromLng)
+      .arcEndLat(d => d.toLat)
+      .arcEndLng(d => d.toLng)
+      .arcColor(d => {
+        const isLocal = d.toCity.includes('Los Angeles') || 
+                       d.toCity === 'Metro LA' || 
+                       d.toCity === 'Glendale' || 
+                       d.toCity === 'Long Beach';
+        return isLocal ? '#ff8c00' : '#00bfff';
+      })
+      .arcAltitude(0.2)
+      .arcStroke(0.8)
+      .arcDashLength(0.6)
+      .arcDashGap(0.15)
+      .arcDashAnimateTime(4000)
+      .arcsTransitionDuration(0);
+
+    Globe
+      .pointsData(arcsData)
+      .pointLat(d => d.toLat)
+      .pointLng(d => d.toLng)
+      .pointAltitude(0.01)
+      .pointRadius(0.6)
+      .pointColor(() => '#FFD700');
+
+    Globe.onPointHover(d => {
+      if (d) {
+        tooltipEl.style.display = 'block';
+        tooltipCity.textContent = d.toCity;
+        tooltipWeight.textContent = d.pounds.toLocaleString() + ' lbs';
+      } else {
+        tooltipEl.style.display = 'none';
+      }
+    });
+
+    scene.add(Globe);
+
+    window.addEventListener('resize', () => {
+      const { innerWidth, innerHeight } = window;
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+
+    window.addEventListener('mousemove', (event) => {
+      tooltipEl.style.left = event.clientX + 'px';
+      tooltipEl.style.top = event.clientY + 'px';
+    });
+
+    (function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      Globe.rotation.y += 0.0005;
+      renderer.render(scene, camera);
+    })();
+  </script>
+</body>
+</html>
