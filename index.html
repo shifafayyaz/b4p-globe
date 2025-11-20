@@ -13,14 +13,11 @@
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       overflow: hidden;
-      background: #000;
+      background: #02040a;
     }
     #globeViz {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
     }
     #tooltip {
       position: absolute;
@@ -36,6 +33,7 @@
       display: none;
       white-space: nowrap;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      z-index: 20;
     }
     .tooltip-city {
       font-weight: 500;
@@ -65,41 +63,42 @@
     }
     .panel {
       position: absolute;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(8, 12, 24, 0.9);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 12px;
-      padding: 24px;
+      padding: 20px 22px;
       color: white;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+      z-index: 10;
     }
     #legend {
       top: 24px;
       right: 24px;
-      width: 280px;
+      width: 260px;
     }
     #stats {
-      top: 200px;
+      top: 190px;
       right: 24px;
-      width: 280px;
+      width: 260px;
     }
     .panel h2 {
       font-size: 18px;
       font-weight: 600;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .legend-item {
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .legend-color {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 3px;
       flex-shrink: 0;
-      margin-top: 2px;
+      margin-top: 3px;
     }
     .legend-label {
       font-size: 14px;
@@ -114,11 +113,11 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .stat-icon {
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       background: rgba(33, 150, 243, 0.15);
       border-radius: 8px;
       display: flex;
@@ -132,12 +131,12 @@
       stroke: #2196F3;
     }
     .stat-label {
-      font-size: 13px;
+      font-size: 12px;
       opacity: 0.7;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .stat-value {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
       font-variant-numeric: tabular-nums;
     }
@@ -185,42 +184,47 @@
     <div class="stat-item">
       <div class="stat-icon">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
         </svg>
       </div>
       <div>
         <div class="stat-label">Total Shipments</div>
-        <div class="stat-value" id="totalShipments">20</div>
+        <div class="stat-value" id="totalShipments">–</div>
       </div>
     </div>
     <div class="stat-item">
       <div class="stat-icon">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
         </svg>
       </div>
       <div>
         <div class="stat-label">Total Weight</div>
-        <div class="stat-value" id="totalWeight">1,007,073 lbs</div>
+        <div class="stat-value" id="totalWeight">–</div>
       </div>
     </div>
     <div class="stat-item">
       <div class="stat-icon">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
       </div>
       <div>
         <div class="stat-label">Destinations</div>
-        <div class="stat-value" id="totalDestinations">13</div>
+        <div class="stat-value" id="totalDestinations">–</div>
       </div>
     </div>
   </div>
 
-  <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
-  <script src="https://unpkg.com/three-globe@2.31.1/dist/three-globe.min.js"></script>
-  <script src="https://unpkg.com/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Use the simplest CDNs exactly like the official examples -->
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/three/examples/js/controls/OrbitControls.js"></script>
+  <script src="//unpkg.com/three-globe"></script>
 
   <script>
     const LA = { city: "Los Angeles", lat: 34.0522, lng: -118.2437 };
@@ -259,7 +263,7 @@
       pounds: s.pounds
     }));
 
-    // Calculate stats
+    // Stats
     const totalPounds = arcsData.reduce((sum, arc) => sum + arc.pounds, 0);
     const uniqueDestinations = new Set(arcsData.map(arc => arc.toCity)).size;
     document.getElementById('totalShipments').textContent = arcsData.length.toLocaleString();
@@ -277,7 +281,7 @@
     container.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = new THREE.Color(0x02040a);
 
     const camera = new THREE.PerspectiveCamera(
       45,
@@ -285,30 +289,38 @@
       0.1,
       2000
     );
-    camera.position.set(0, 0, 400);
+    camera.position.set(0, 0, 420);
 
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
+    controls.dampingFactor = 0.08;
     controls.minDistance = 200;
     controls.maxDistance = 600;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-    scene.add(ambientLight);
+    // Lights – these make the globe obvious
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirLight.position.set(200, 200, 200);
+    scene.add(dirLight);
 
     const Globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
       .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+      .showAtmosphere(true)
+      .atmosphereColor('#3a9efd')
+      .atmosphereAltitude(0.25)
+      .showGraticules(true)
       .arcsData(arcsData)
       .arcStartLat(d => d.fromLat)
       .arcStartLng(d => d.fromLng)
       .arcEndLat(d => d.toLat)
       .arcEndLng(d => d.toLng)
       .arcColor(d => {
-        const isLocal = d.toCity.includes('Los Angeles') || 
-                       d.toCity === 'Metro LA' || 
-                       d.toCity === 'Glendale' || 
-                       d.toCity === 'Long Beach';
+        const isLocal =
+          d.toCity.includes('Los Angeles') ||
+          d.toCity === 'Metro LA' ||
+          d.toCity === 'Glendale' ||
+          d.toCity === 'Long Beach';
         return isLocal ? '#ff8c00' : '#00bfff';
       })
       .arcAltitude(0.2)
@@ -322,8 +334,8 @@
       .pointsData(arcsData)
       .pointLat(d => d.toLat)
       .pointLng(d => d.toLng)
-      .pointAltitude(0.01)
-      .pointRadius(0.6)
+      .pointAltitude(0.02)
+      .pointRadius(0.7)
       .pointColor(() => '#FFD700');
 
     Globe.onPointHover(d => {
